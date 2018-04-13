@@ -8,9 +8,9 @@
 }
 
 .App-header {
-  background-color: rgb(71, 71, 71);
+  background-color: /*rgb(71, 71, 71);*/ none;
   padding: 2em;
-  color: white;
+  color: rgb(7, 201, 0);
   display: flex;
   flex-direction: column;
 }
@@ -19,7 +19,7 @@
   font-size: 2em;
   margin: auto;
   display: inline-block;
-  text-shadow: 0px 4px 3px rgba(0, 0, 0, 0.4), 0px 8px 13px rgba(0, 0, 0, 0.1), 0px 18px 23px rgba(0, 0, 0, 0.1);
+  text-shadow: 0px 0px 2px white, 0px 2px 3px rgba(0, 0, 0, 0.4), 0px 8px 13px rgba(0, 0, 0, 0.1), 0px 18px 23px rgba(0, 0, 0, 0.1);
 }
 
 .App-steps {
@@ -57,12 +57,30 @@
   padding-left: .5em;
 }
 
+input {
+  border: none;
+  outline: none;
+  margin: .5em;
+  margin-right: 1em;
+  padding-top: .5em;
+  padding-bottom: .5em;
+  box-shadow: inset 0px 0px 2px gray;
+}
+
 h2 {
   padding: .5em;
   color: rgb(65, 65, 65);
   width: 100%;
   margin: 0;
   font-size: 1.2em;
+}
+
+h2 > small {
+  display: block;
+  color: gray;
+  font-size: .8em;
+  margin-top: .5em;
+  font-weight: light;
 }
 
 @keyframes App-logo-spin {
