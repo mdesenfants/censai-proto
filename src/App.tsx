@@ -8,8 +8,12 @@ let logo = (
 );
 
 interface AppState {
-  validUrl: boolean;
+  validTrack: boolean;
+  emailReady: boolean;
   validEmail: boolean;
+  previewReady: boolean;
+  billingReady: boolean;
+  downloadReady: boolean;
 }
 
 function inputIsValid(id: string): boolean {
@@ -20,12 +24,19 @@ function inputIsValid(id: string): boolean {
 class App extends React.Component<{}, AppState> {
   constructor(props: {}) {
     super(props);
-    this.state = { validUrl: false, validEmail: false };
+    this.state = {
+      validTrack: false,
+      emailReady: false,
+      validEmail: false,
+      previewReady: false,
+      billingReady: false,
+      downloadReady: false
+    };
   }
 
-  checkValidUrl = () => {
+  checkValidTrack = () => {
     this.setState({
-      validUrl: inputIsValid('url')
+      validTrack: inputIsValid('track')
     });
   }
 
@@ -33,6 +44,23 @@ class App extends React.Component<{}, AppState> {
     this.setState({
       validEmail: inputIsValid('email')
     });
+  }
+
+  startEmail = () => {
+    this.setState({
+      emailReady: inputIsValid('track')
+    });
+  }
+
+  // shims
+  fileShim = () => {
+    (document.getElementById('track') as HTMLInputElement).value = 'https://mycloud.co/magicfiles';
+    this.checkValidTrack();
+  }
+
+  emailShim = () => {
+    (document.getElementById('email') as HTMLInputElement).value = 'sam@pod.agency';
+    this.checkValidEmail();
   }
 
   render() {
@@ -48,25 +76,26 @@ class App extends React.Component<{}, AppState> {
               verbal fillers, profanities, and editing words.
               </p>
             <p>
-              Once it's done processing, you will get audio track that marks each point
+              Once it's done processing, you will get an audio track that marks each point
               of interest with a loud, <i>visible</i> click.
             </p>
           </div>
-          <div className="Step Complete">
+          <div className={'Step' + (this.state.emailReady ? ' Complete' : ' Active')}>
             <h2>Submit your track<small>Paste a share link from Drive, Dropbox, or OneDrive.</small></h2>
             <div className="Input-block">
               <input
-                id="url"
+                id="track"
                 type="url"
                 className=""
                 placeholder="https://onedropdrivebox.cloud/5up3rc4l1fr461l1571c3xp14l1d0c10u5"
                 pattern="https://.+/.+"
-                onChange={this.checkValidUrl}
+                onClick={this.fileShim}
+                onChange={this.checkValidTrack}
               />
-              <input type="button" value="Go" disabled={!this.state.validUrl} />
+              <input type="button" value="Go" disabled={!this.state.validTrack} onClick={this.startEmail} />
             </div>
           </div>
-          <div className="Step Active">
+          <div className="Step {Active}">
             <h2>Confirm email<small>Make sure we can reach you when procesing is done.</small></h2>
             <div className="Input-block">
               <input
@@ -75,7 +104,9 @@ class App extends React.Component<{}, AppState> {
                 className=""
                 placeholder="george@jungle.ook"
                 pattern=".+@.+\..+"
+                onClick={this.emailShim}
                 onChange={this.checkValidEmail}
+                disabled={!this.state.emailReady}
               />
               <input type="button" value="Go" disabled={!this.state.validEmail} />
             </div>
