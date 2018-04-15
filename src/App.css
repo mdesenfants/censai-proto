@@ -75,9 +75,12 @@ p:last-of-type {
 .Input-block {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  margin-right: .5em;
 }
 
 input {
+  display: flex;
   flex: 1;
   border: none;
   outline: none;
@@ -95,12 +98,9 @@ input:first-of-type {
 
 input[type="button"] {
   flex: 0;
-  display: inline-block;
   width: auto;
   padding-left: 1em;
   padding-right: 1em;
-  padding-top: .8em;
-  padding-bottom: .8em;
   align-self: left;
   background-color: rgb(7, 201, 0);
   color: white;
@@ -110,6 +110,14 @@ input[type="button"] {
   font-size: .8em;
   box-shadow: 0 1px 1px rgb(65, 65, 65);
   border-radius: 0px .5em .5em 0px;
+}
+
+input[type="button"]:active {
+  box-shadow: inset 0 1px 1px rgb(65, 65, 65);
+}
+
+input[type="button"]:disabled {
+  background-color: rgb(94, 94, 94);
 }
 
 input:invalid {
