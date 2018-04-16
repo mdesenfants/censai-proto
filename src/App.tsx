@@ -9,11 +9,12 @@ let logo = (
 
 interface AppState {
   validTrack: boolean;
-  emailReady: boolean;
   validEmail: boolean;
-  previewReady: boolean;
-  billingReady: boolean;
-  downloadReady: boolean;
+  trackState: string;
+  emailState: string;
+  previewState: string;
+  billingState: string;
+  downloadState: string;
 }
 
 function inputIsValid(id: string): boolean {
@@ -26,11 +27,12 @@ class App extends React.Component<{}, AppState> {
     super(props);
     this.state = {
       validTrack: false,
-      emailReady: false,
       validEmail: false,
-      previewReady: false,
-      billingReady: false,
-      downloadReady: false
+      trackState: 'Active',
+      emailState: 'Waiting',
+      previewState: 'Waiting',
+      billingState: 'Waiting',
+      downloadState: 'Waiting'
     };
   }
 
@@ -47,19 +49,22 @@ class App extends React.Component<{}, AppState> {
   }
 
   startEmail = () => {
-    this.setState({
-      emailReady: inputIsValid('track')
-    });
+    if (inputIsValid('track')) {
+      this.setState({
+        trackState: 'Complete',
+        emailState: 'Active'
+      });
+    }
   }
 
   // shims
   fileShim = () => {
-    (document.getElementById('track') as HTMLInputElement).value = 'https://mycloud.co/magicfiles';
+    (document.getElementById('track') as HTMLInputElement).value = 'https://mycloud.co/watergatetapes';
     this.checkValidTrack();
   }
 
   emailShim = () => {
-    (document.getElementById('email') as HTMLInputElement).value = 'sam@pod.agency';
+    (document.getElementById('email') as HTMLInputElement).value = 'woodward@wapo.com';
     this.checkValidEmail();
   }
 
@@ -80,7 +85,7 @@ class App extends React.Component<{}, AppState> {
               of interest with a loud, <i>visible</i> click.
             </p>
           </div>
-          <div className={'Step' + (this.state.emailReady ? ' Complete' : ' Active')}>
+          <div className={'Step ' + this.state.trackState}>
             <h2>Submit your track<small>Paste a share link from Drive, Dropbox, or OneDrive.</small></h2>
             <div className="Input-block">
               <input
@@ -89,13 +94,13 @@ class App extends React.Component<{}, AppState> {
                 className=""
                 placeholder="https://onedropdrivebox.cloud/5up3rc4l1fr461l1571c3xp14l1d0c10u5"
                 pattern="https://.+/.+"
-                onClick={this.fileShim}
+                onFocus={this.fileShim}
                 onChange={this.checkValidTrack}
               />
-              <input type="button" value="Go" disabled={!this.state.validTrack} onClick={this.startEmail} />
+              <input type="button" value="go" disabled={!this.state.validTrack} onClick={this.startEmail} />
             </div>
           </div>
-          <div className="Step {Active}">
+          <div className={'Step ' + this.state.emailState}>
             <h2>Confirm email<small>Make sure we can reach you when procesing is done.</small></h2>
             <div className="Input-block">
               <input
@@ -104,11 +109,11 @@ class App extends React.Component<{}, AppState> {
                 className=""
                 placeholder="george@jungle.ook"
                 pattern=".+@.+\..+"
-                onClick={this.emailShim}
+                onFocus={this.emailShim}
                 onChange={this.checkValidEmail}
-                disabled={!this.state.emailReady}
+                disabled={this.state.emailState !== 'Active'}
               />
-              <input type="button" value="Go" disabled={!this.state.validEmail} />
+              <input type="button" value="go" disabled={!this.state.validEmail} />
             </div>
           </div>
           <div className="Step Waiting">
