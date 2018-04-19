@@ -1,4 +1,5 @@
 import * as React from 'react';
+import 'waveform-data';
 import './App.css';
 
 let logo = (
@@ -20,6 +21,51 @@ interface AppState {
 function inputIsValid(id: string): boolean {
   let el = document.getElementById(id) as HTMLInputElement;
   return el.checkValidity() && el.value.trim() !== '';
+}
+
+function Waveform(props: { canvas: string }) {
+  const webAudioBuilder = require('waveform-data/webaudio');
+  const audioContext = new AudioContext();
+
+  fetch('./1-21-draft.ogg')
+    .then(response => response.arrayBuffer())
+    .then(buffer => {
+      // tslint:disable-next-line:no-any
+      webAudioBuilder(audioContext, buffer, (error: any, waveform: any) => {
+        if (error) {
+          return;
+        }
+
+        const interpolateHeight = (totalHeight: number) => {
+          const amplitude = 256;
+          return (size: number) => totalHeight - ((size + 128) * totalHeight) / amplitude;
+        };
+
+        let cEl = document.getElementById(props.canvas) as HTMLCanvasElement;
+
+        const y = interpolateHeight(cEl.height);
+        const ctx = cEl.getContext('2d');
+
+        if (!ctx) { return; }
+
+        ctx.beginPath();
+
+        // from 0 to 100
+        waveform.min.forEach((val: number, x: number) => ctx.lineTo(x + 0.5, y(val) + 0.5));
+
+        // then looping back from 100 to 0
+        waveform.max.reverse().forEach((val: number, x: number) => {
+          ctx.lineTo((waveform.offset_length - x) + 0.5, y(val) + 0.5);
+        });
+
+        ctx.closePath();
+        ctx.stroke();
+      });
+    });
+
+  return (
+    <canvas width="576" height="100" id="waveform" />
+  );
 }
 
 class App extends React.Component<{}, AppState> {
@@ -118,6 +164,7 @@ class App extends React.Component<{}, AppState> {
           </div>
           <div className="Step Waiting">
             <h2>Preview track<small>Check that the file we grabbed is what you expected.</small></h2>
+            <Waveform canvas="waveform" />
           </div>
           <div className="Step Waiting">
             <h2>Billing<small>Now for the hard part.</small></h2>
