@@ -42,6 +42,8 @@ function Waveform(props: { canvas: string }) {
         };
 
         let cEl = document.getElementById(props.canvas) as HTMLCanvasElement;
+        cEl.width  = cEl.offsetWidth;
+        cEl.height = cEl.offsetHeight;
 
         const y = interpolateHeight(cEl.height);
         const ctx = cEl.getContext('2d');
