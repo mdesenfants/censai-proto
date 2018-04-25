@@ -1,5 +1,6 @@
 import * as React from 'react';
 import 'waveform-data';
+import 'peaks';
 import './App.css';
 
 let logo = (
@@ -36,37 +37,21 @@ function Waveform(props: { canvas: string }) {
           return;
         }
 
-        const interpolateHeight = (totalHeight: number) => {
-          const amplitude = 256;
-          return (size: number) => totalHeight - ((size + 128) * totalHeight) / amplitude;
-        };
+        var ctx = new AudioContext();
 
-        let cEl = document.getElementById(props.canvas) as HTMLCanvasElement;
-        cEl.width  = cEl.offsetWidth;
-        cEl.height = cEl.offsetHeight;
-
-        const y = interpolateHeight(cEl.height);
-        const ctx = cEl.getContext('2d');
-
-        if (!ctx) { return; }
-
-        ctx.beginPath();
-
-        // from 0 to 100
-        waveform.min.forEach((val: number, x: number) => ctx.lineTo(x + 0.5, y(val) + 0.5));
-
-        // then looping back from 100 to 0
-        waveform.max.reverse().forEach((val: number, x: number) => {
-          ctx.lineTo((waveform.offset_length - x) + 0.5, y(val) + 0.5);
+        peaks.init({
+          container: document.getElementById('peaks-input'),
+          mediaElement: document.querySelector('input'),
+          aduioContext: ctx
         });
-
-        ctx.closePath();
-        ctx.stroke();
       });
     });
 
   return (
-    <canvas width="576" height="100" id="waveform" />
+    <div>
+      <div id="peaks-input" />
+      <audio id="input" src="./1-21-draft.ogg" />
+    </div>
   );
 }
 
