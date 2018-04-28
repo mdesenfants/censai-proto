@@ -52,6 +52,7 @@ span.heavy {
 
 .Step.Waiting {
   border-left: .5em solid rgb(94, 94, 94);
+  opacity: .5;
 }
 
 .Step.Complete {
