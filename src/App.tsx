@@ -1,11 +1,11 @@
 import * as React from 'react';
 import 'waveform-data';
-import 'peaks';
+import 'peaks.js';
 import './App.css';
 
 let logo = (
   <span>
-    <span className="light">CENS[</span><span className="heavy">AI</span><span className="light">]</span>
+    <span className="light">=&gt;[POD</span><span className="heavy">ROCKET</span><span className="light">]&gt;</span>
   </span>
 );
 
@@ -39,16 +39,18 @@ function Waveform(props: { canvas: string }) {
 
         var ctx = new AudioContext();
 
+        const peaks = require('peaks.js/peaks');
         peaks.init({
           container: document.getElementById('peaks-input'),
-          mediaElement: document.querySelector('input'),
-          aduioContext: ctx
+          mediaElement: document.getElementById('input') as HTMLMediaElement,
+          audioContext: ctx,
+          height: 100
         });
       });
     });
 
   return (
-    <div>
+    <div className="Audio-input">
       <div id="peaks-input" />
       <audio id="input" src="./1-21-draft.ogg" />
     </div>
