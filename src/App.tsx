@@ -17,6 +17,7 @@ interface AppState {
   previewState: string;
   billingState: string;
   downloadState: string;
+  upload: string;
 }
 
 function inputIsValid(id: string): boolean {
@@ -24,40 +25,41 @@ function inputIsValid(id: string): boolean {
   return el.checkValidity() && el.value.trim() !== '';
 }
 
-function Waveform(props: { canvas: string }) {
+function Waveform(props: { canvas: string, audioContext: AudioContext, source: string }) {
   const webAudioBuilder = require('waveform-data/webaudio');
-  const audioContext = new AudioContext();
 
-  fetch('./1-21-draft.ogg')
-    .then(response => response.arrayBuffer())
-    .then(buffer => {
-      // tslint:disable-next-line:no-any
-      webAudioBuilder(audioContext, buffer, (error: any, waveform: any) => {
-        if (error) {
-          return;
-        }
+  if (props.source && props.source !== '') {
+    fetch(props.source)
+      .then(response => response.arrayBuffer())
+      .then(buffer => {
+        // tslint:disable-next-line:no-any
+        webAudioBuilder(props.audioContext, buffer, (error: any, waveform: any) => {
+          if (error) {
+            return;
+          }
 
-        var ctx = new AudioContext();
-
-        const peaks = require('peaks.js/peaks');
-        peaks.init({
-          container: document.getElementById('peaks-input'),
-          mediaElement: document.getElementById('input') as HTMLMediaElement,
-          audioContext: ctx,
-          height: 100
+          const peaks = require('peaks.js/peaks');
+          peaks.init({
+            container: document.getElementById('peaks-input'),
+            mediaElement: document.getElementById('input') as HTMLMediaElement,
+            audioContext: props.audioContext,
+            height: 100
+          });
         });
       });
-    });
+  }
 
   return (
     <div className="Audio-input">
       <div id="peaks-input" />
-      <audio id="input" src="./1-21-draft.ogg" />
+      <audio id="input" src={props.source} />
     </div>
   );
 }
 
 class App extends React.Component<{}, AppState> {
+  audioContext = new AudioContext();
+
   constructor(props: {}) {
     super(props);
     this.state = {
@@ -67,7 +69,8 @@ class App extends React.Component<{}, AppState> {
       emailState: 'Waiting',
       previewState: 'Waiting',
       billingState: 'Waiting',
-      downloadState: 'Waiting'
+      downloadState: 'Waiting',
+      upload: ''
     };
   }
 
@@ -88,6 +91,16 @@ class App extends React.Component<{}, AppState> {
       this.setState({
         trackState: 'Complete',
         emailState: 'Active'
+      });
+    }
+  }
+
+  startAudio = () => {
+    if (inputIsValid('email')) {
+      this.setState({
+        emailState: 'Complete',
+        previewState: 'Active',
+        upload: './1-21-draft.ogg'
       });
     }
   }
@@ -148,12 +161,12 @@ class App extends React.Component<{}, AppState> {
                 onChange={this.checkValidEmail}
                 disabled={this.state.emailState !== 'Active'}
               />
-              <input type="button" value="go" disabled={!this.state.validEmail} />
+              <input type="button" value="go" disabled={!this.state.validEmail} onClick={this.startAudio} />
             </div>
           </div>
-          <div className="Step Waiting">
+          <div className={'Step ' + this.state.previewState}>
             <h2>Preview track<small>Check that the file we grabbed is what you expected.</small></h2>
-            <Waveform canvas="waveform" />
+            <Waveform canvas="waveform" audioContext={this.audioContext} source={this.state.upload} />
           </div>
           <div className="Step Waiting">
             <h2>Billing<small>Now for the hard part.</small></h2>
