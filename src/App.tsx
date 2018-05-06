@@ -12,6 +12,7 @@ let logo = (
 interface AppState {
   validTrack: boolean;
   validEmail: boolean;
+  validWaveform: boolean;
   trackState: string;
   emailState: string;
   previewState: string;
@@ -25,7 +26,7 @@ function inputIsValid(id: string): boolean {
   return el.checkValidity() && el.value.trim() !== '';
 }
 
-function Waveform(props: { canvas: string, audioContext: AudioContext, source: string }) {
+function Waveform(props: { canvas: string, audioContext: AudioContext, source: string, onLoad: () => void }) {
   const webAudioBuilder = require('waveform-data/webaudio');
 
   if (props.source && props.source !== '') {
@@ -46,7 +47,8 @@ function Waveform(props: { canvas: string, audioContext: AudioContext, source: s
             height: 100
           });
         });
-      });
+      })
+      .then(props.onLoad);
   }
 
   return (
@@ -63,6 +65,7 @@ class App extends React.Component<{}, AppState> {
   default = {
     validTrack: false,
     validEmail: false,
+    validWaveform: false,
     trackState: 'Active',
     emailState: 'Waiting',
     previewState: 'Waiting',
@@ -86,6 +89,12 @@ class App extends React.Component<{}, AppState> {
   checkValidEmail = () => {
     this.setState({
       validEmail: inputIsValid('email')
+    });
+  }
+
+  checkValidWaveform = () => {
+    this.setState({
+      validWaveform: true
     });
   }
 
@@ -173,7 +182,13 @@ class App extends React.Component<{}, AppState> {
           </div>
           <div className={'Step ' + this.state.previewState}>
             <h2>Preview track<small>Check that the file we grabbed is what you expected.</small></h2>
-            <Waveform canvas="waveform" audioContext={this.audioContext} source={this.state.upload} />
+            <Waveform
+              canvas="waveform"
+              audioContext={this.audioContext}
+              source={this.state.upload}
+              onLoad={this.checkValidWaveform}
+            />
+            <input type="button" value="go" disabled={!this.state.validWaveform} />
           </div>
           <div className="Step Waiting">
             <h2>Billing<small>Now for the hard part.</small></h2>
