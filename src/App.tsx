@@ -60,21 +60,24 @@ function Waveform(props: { canvas: string, audioContext: AudioContext, source: s
 class App extends React.Component<{}, AppState> {
   audioContext = new AudioContext();
 
+  default = {
+    validTrack: false,
+    validEmail: false,
+    trackState: 'Active',
+    emailState: 'Waiting',
+    previewState: 'Waiting',
+    billingState: 'Waiting',
+    downloadState: 'Waiting',
+    upload: ''
+  };
+
   constructor(props: {}) {
     super(props);
-    this.state = {
-      validTrack: false,
-      validEmail: false,
-      trackState: 'Active',
-      emailState: 'Waiting',
-      previewState: 'Waiting',
-      billingState: 'Waiting',
-      downloadState: 'Waiting',
-      upload: ''
-    };
+    this.state = this.default;
   }
 
   checkValidTrack = () => {
+    this.state = this.default;
     this.setState({
       validTrack: inputIsValid('track')
     });
@@ -84,6 +87,10 @@ class App extends React.Component<{}, AppState> {
     this.setState({
       validEmail: inputIsValid('email')
     });
+  }
+
+  startUpload = () => {
+    this.state = this.default;
   }
 
   startEmail = () => {
