@@ -2,10 +2,11 @@ import * as React from 'react';
 import 'waveform-data';
 import 'peaks.js';
 import './App.css';
+import { Waveform } from './Waveform';
 
 let logo = (
   <span>
-    <span className="light">=&gt;[POD</span><span className="heavy">ROCKET</span><span className="light">]&gt;</span>
+    <span className="light">POD</span><span className="heavy">&gt;ROCKET&gt;</span>
   </span>
 );
 
@@ -19,6 +20,7 @@ interface AppState {
   billingState: string;
   downloadState: string;
   upload: string;
+  source: string | undefined;
 }
 
 function inputIsValid(id: string): boolean {
@@ -26,43 +28,10 @@ function inputIsValid(id: string): boolean {
   return el.checkValidity() && el.value.trim() !== '';
 }
 
-function Waveform(props: { canvas: string, audioContext: AudioContext, source: string, onLoad: () => void }) {
-  const webAudioBuilder = require('waveform-data/webaudio');
-
-  if (props.source && props.source !== '') {
-    fetch(props.source)
-      .then(response => response.arrayBuffer())
-      .then(buffer => {
-        // tslint:disable-next-line:no-any
-        webAudioBuilder(props.audioContext, buffer, (error: any, waveform: any) => {
-          if (error) {
-            return;
-          }
-
-          const peaks = require('peaks.js/peaks');
-          peaks.init({
-            container: document.getElementById('peaks-input'),
-            mediaElement: document.getElementById('input') as HTMLMediaElement,
-            audioContext: props.audioContext,
-            height: 100
-          });
-        });
-      })
-      .then(props.onLoad);
-  }
-
-  return (
-    <div className="Audio-input">
-      <div id="peaks-input" />
-      <audio id="input" src={props.source} />
-    </div>
-  );
-}
-
 class App extends React.Component<{}, AppState> {
   audioContext = new AudioContext();
 
-  default = {
+  default: AppState = {
     validTrack: false,
     validEmail: false,
     validWaveform: false,
@@ -71,7 +40,8 @@ class App extends React.Component<{}, AppState> {
     previewState: 'Waiting',
     billingState: 'Waiting',
     downloadState: 'Waiting',
-    upload: ''
+    upload: '',
+    source: undefined,
   };
 
   constructor(props: {}) {
@@ -111,13 +81,32 @@ class App extends React.Component<{}, AppState> {
     }
   }
 
-  startAudio = () => {
+  startAudio = (upload: string, actx: AudioContext) => {
     if (inputIsValid('email')) {
       this.setState({
         emailState: 'Complete',
-        previewState: 'Active',
-        upload: './1-21-draft.ogg'
+        previewState: 'Active'
       });
+
+      fetch(upload)
+        .then(response => response.arrayBuffer())
+        .then(buffer => {
+          const webAudioBuilder = require('waveform-data/webaudio');
+          // tslint:disable-next-line:no-any
+          webAudioBuilder(actx, buffer, (error: any, waveform: any) => {
+            if (error) {
+              return;
+            }
+
+            const peaks = require('peaks.js/peaks');
+            peaks.init({
+              container: document.getElementById('peaks-input'),
+              mediaElement: document.getElementById('waveform') as HTMLMediaElement,
+              audioContext: actx,
+              height: 100
+            });
+          });
+        });
     }
   }
 
@@ -143,7 +132,7 @@ class App extends React.Component<{}, AppState> {
             <p>
               {logo} will comb through your podcast looking for
               verbal fillers, profanities, and editing words.
-              </p>
+            </p>
             <p>
               Once it's done processing, you will get an audio track that marks each point
               of interest with a loud, <i>visible</i> click.
@@ -161,7 +150,12 @@ class App extends React.Component<{}, AppState> {
                 onFocus={this.fileShim}
                 onChange={this.checkValidTrack}
               />
-              <input type="button" value="go" disabled={!this.state.validTrack} onClick={this.startEmail} />
+              <input
+                type="button"
+                value="go"
+                disabled={!this.state.validTrack}
+                onClick={this.startEmail}
+              />
             </div>
           </div>
           <div className={'Step ' + this.state.emailState}>
@@ -177,16 +171,18 @@ class App extends React.Component<{}, AppState> {
                 onChange={this.checkValidEmail}
                 disabled={this.state.emailState !== 'Active'}
               />
-              <input type="button" value="go" disabled={!this.state.validEmail} onClick={this.startAudio} />
+              <input
+                type="button"
+                value="go"
+                disabled={!this.state.validEmail}
+                onClick={() => this.startAudio('./1-21-draft.ogg', this.audioContext)}
+              />
             </div>
           </div>
           <div className={'Step ' + this.state.previewState}>
             <h2>Preview track<small>Check that the file we grabbed is what you expected.</small></h2>
             <Waveform
-              canvas="waveform"
-              audioContext={this.audioContext}
               source={this.state.upload}
-              onLoad={this.checkValidWaveform}
             />
             <input type="button" value="go" disabled={!this.state.validWaveform} />
           </div>
