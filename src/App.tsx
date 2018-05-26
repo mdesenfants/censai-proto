@@ -81,6 +81,20 @@ class App extends React.Component<{}, AppState> {
     }
   }
 
+  confirmWaveform = () => {
+    this.setState({
+      previewState: 'Complete',
+      billingState: 'Active',
+    });
+  }
+
+  pay = () => {
+    this.setState({
+      billingState: 'Complete',
+      downloadState: 'Active'
+    });
+  }
+
   startAudio = (upload: string, actx: AudioContext) => {
     if (inputIsValid('email')) {
       this.setState({
@@ -106,6 +120,8 @@ class App extends React.Component<{}, AppState> {
               height: 100
             });
           });
+
+          this.setState({ validWaveform: true });
         });
     }
   }
@@ -184,12 +200,23 @@ class App extends React.Component<{}, AppState> {
             <Waveform
               source={this.state.upload}
             />
-            <input type="button" value="go" disabled={!this.state.validWaveform} />
+            <input
+              type="button"
+              value="go"
+              disabled={!this.state.validWaveform}
+              onClick={() => this.confirmWaveform()}
+            />
           </div>
-          <div className="Step Waiting">
+          <div className={'Step ' + this.state.billingState}>
             <h2>Billing<small>Now for the hard part.</small></h2>
+            <input
+              type="button"
+              value="Pay"
+              disabled={!this.state.validWaveform}
+              onClick={() => this.pay()}
+            />
           </div>
-          <div className="Step Waiting">
+          <div className={'Step ' + this.state.downloadState}>
             <h2>Done<small>Download your marker track here.</small></h2>
           </div>
         </div>
