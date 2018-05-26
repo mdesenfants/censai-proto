@@ -14,6 +14,7 @@ interface AppState {
   validTrack: boolean;
   validEmail: boolean;
   validWaveform: boolean;
+  validPayment: boolean;
   trackState: string;
   emailState: string;
   previewState: string;
@@ -35,6 +36,7 @@ class App extends React.Component<{}, AppState> {
     validTrack: false,
     validEmail: false,
     validWaveform: false,
+    validPayment: false,
     trackState: 'Active',
     emailState: 'Waiting',
     previewState: 'Waiting',
@@ -49,22 +51,28 @@ class App extends React.Component<{}, AppState> {
     this.state = this.default;
   }
 
-  checkValidTrack = () => {
+  checkTrack = () => {
     this.state = this.default;
     this.setState({
       validTrack: inputIsValid('track')
     });
   }
 
-  checkValidEmail = () => {
+  checkEmail = () => {
     this.setState({
       validEmail: inputIsValid('email')
     });
   }
 
-  checkValidWaveform = () => {
+  checkWaveform = () => {
     this.setState({
       validWaveform: true
+    });
+  }
+
+  checkPayment = () => {
+    this.setState({
+      validPayment: inputIsValid('payment')
     });
   }
 
@@ -81,7 +89,7 @@ class App extends React.Component<{}, AppState> {
     }
   }
 
-  confirmWaveform = () => {
+  startBilling = () => {
     this.setState({
       previewState: 'Complete',
       billingState: 'Active',
@@ -129,12 +137,17 @@ class App extends React.Component<{}, AppState> {
   // shims
   fileShim = () => {
     (document.getElementById('track') as HTMLInputElement).value = 'https://mycloud.co/watergatetapes';
-    this.checkValidTrack();
+    this.checkTrack();
   }
 
   emailShim = () => {
     (document.getElementById('email') as HTMLInputElement).value = 'woodward@wapo.com';
-    this.checkValidEmail();
+    this.checkEmail();
+  }
+
+  cardShim = () => {
+    (document.getElementById('payment') as HTMLInputElement).value = '1234123412341234';
+    this.checkPayment();
   }
 
   render() {
@@ -164,7 +177,7 @@ class App extends React.Component<{}, AppState> {
                 placeholder="https://onedropdrivebox.cloud/5up3rc4l1fr461l1571c3xp14l1d0c10u5"
                 pattern="https://.+/.+"
                 onFocus={this.fileShim}
-                onChange={this.checkValidTrack}
+                onChange={this.checkTrack}
               />
               <input
                 type="button"
@@ -184,7 +197,7 @@ class App extends React.Component<{}, AppState> {
                 placeholder="george@jungle.ook"
                 pattern=".+@.+\..+"
                 onFocus={this.emailShim}
-                onChange={this.checkValidEmail}
+                onChange={this.checkEmail}
                 disabled={this.state.emailState !== 'Active'}
               />
               <input
@@ -204,20 +217,30 @@ class App extends React.Component<{}, AppState> {
               type="button"
               value="go"
               disabled={!this.state.validWaveform}
-              onClick={() => this.confirmWaveform()}
+              onClick={() => this.startBilling()}
             />
           </div>
           <div className={'Step ' + this.state.billingState}>
             <h2>Billing<small>Now for the hard part.</small></h2>
             <input
+              type="text"
+              id="payment"
+              pattern="[0-9]{13,16}"
+              onChange={this.checkPayment}
+              onFocus={this.cardShim}
+            />
+            <input
               type="button"
               value="Pay"
-              disabled={!this.state.validWaveform}
+              disabled={!this.state.validPayment}
               onClick={() => this.pay()}
             />
           </div>
           <div className={'Step ' + this.state.downloadState}>
             <h2>Done<small>Download your marker track here.</small></h2>
+            <p>
+              <a href="#" hidden={!(this.state.downloadState === 'Active')}><h3>&#11123; Download</h3></a>
+            </p>
           </div>
         </div>
       </div>

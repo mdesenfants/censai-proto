@@ -7,6 +7,8 @@
   color: rgb(7, 201, 0);
   display: flex;
   flex-direction: column;
+  background-color: rgb(99, 99, 99);
+  margin-bottom: 1em;
 }
 
 .App-title {
@@ -39,7 +41,7 @@ span.heavy {
   margin-bottom: 1em;
   width: 100%;
   max-width: 600px;
-  padding: 1em;
+  padding: .8em;
   box-shadow: 0px 1px 2px 0 rgba(0, 0, 0, .5);
   border-left: .5em solid rgb(100, 100, 255);
   background: #fff;
@@ -87,7 +89,7 @@ input {
   padding: .5em;
   padding-top: .8em;
   padding-bottom: .8em;
-  margin-bottom: 1em;
+  margin-bottom: .8em;
   margin-top: .5em;
   box-shadow: inset 0px 0px 2px gray;
 }
@@ -118,6 +120,11 @@ input[type="button"]:disabled {
 
 input:invalid {
   background-color: rgb(255, 233, 233);
+}
+
+input {
+  margin-bottom: .3em;
+  margin-top: .8em;
 }
 
 h2 {
