@@ -4,6 +4,8 @@ body {
   font-family: 'Oxygen', sans-serif;
 }
 
+a { color: blue; }
+
 * {
   box-sizing: border-box;
   text-decoration: none;

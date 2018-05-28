@@ -1,5 +1,4 @@
 import * as React from 'react';
-import 'waveform-data';
 
 export interface WaveformProps {
     source: string | undefined;
